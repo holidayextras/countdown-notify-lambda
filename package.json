@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "async": "^2.1.2",
+    "aws-sdk": "^2.6.12",
+    "lodash": "^4.16.4",
+    "node-pushnotifications": "git+ssh://git@github.com/Ryanthegiantlion/node-pushnotifications.git",
+    "sumologic": "^1.0.0"
+  },
+  "devDependancies": {
+    "make-up": "^9.3.1"
+  },
+  "scripts": {
+    "start": "node script/send_push.js",
+    "test": "grunt test",
+    "lint": "make-up generated script src",
+    "build": "./script/generate_config.sh",
+    "ci": "npm run lint && npm run build"
+  }
+}
