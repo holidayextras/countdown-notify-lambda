@@ -3,7 +3,7 @@
     "async": "^2.1.2",
     "aws-sdk": "^2.6.12",
     "lodash": "^4.16.4",
-    "node-pushnotifications": "git+ssh://git@github.com/Ryanthegiantlion/node-pushnotifications.git",
+    "node-pushnotifications": "git+https://github.com/Ryanthegiantlion/node-pushnotifications.git",
     "sumologic": "^1.0.0"
   },
   "devDependancies": {
