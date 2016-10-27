@@ -6,7 +6,7 @@
     "node-pushnotifications": "git+https://github.com/Ryanthegiantlion/node-pushnotifications.git",
     "sumologic": "^1.0.0"
   },
-  "devDependancies": {
+  "devDependencies": {
     "make-up": "^9.3.1"
   },
   "scripts": {
