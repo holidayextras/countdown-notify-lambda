@@ -3,3 +3,6 @@
 /npm-debug.log
 /node_modules/
 /generated/
+/dist/
+/.DS_Store
+/lambda_dist.zip
