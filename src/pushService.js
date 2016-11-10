@@ -1,19 +1,18 @@
-/* eslint-disable no-process-exit*/
 'use strict';
 
 var NodePush = require('node-pushnotifications');
 var PushNotifications = new NodePush();
-
 var AWS = require('aws-sdk');
-var _ = require('lodash');
 var moment = require('moment');
-var config = require('../config.js');
 var async = require('async');
+var _ = {
+  each: require('lodash/each')
+};
 
 AWS.config.update({
-  region: config.DYNAMO_DB.REGION,
-  accessKeyId: config.DYNAMO_DB.KEY_ID,
-  secretAccessKey: config.DYNAMO_DB.SECRET_ACCESS_KEY
+  region: process.env.AWS_REGION,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 });
 
 var docClient = new AWS.DynamoDB.DocumentClient();
@@ -28,7 +27,7 @@ var PushService = {
 
   pushSettings: {
     gcm: {
-      id: config.GCM_SERVER_API_KEY,
+      id: process.env.GCM_SERVER_API_KEY,
       msgcnt: 1,
       dataDefaults: {
         delayWhileIdle: false,
@@ -37,15 +36,15 @@ var PushService = {
       }
     },
     apn: {
-      gateway: config.APN_GATEWAY,
+      gateway: process.env.APN_GATEWAY,
       badge: 1,
       defaultData: {
         expiry: 4 * 7 * 24 * 3600, // 4 weeks
         sound: 'ping.aiff'
       },
       options: {
-        cert: config.APN.CERT,
-        key: config.APN.KEY
+        cert: process.env.APN.CERT,
+        key: process.env.APN.KEY
       }
     }
   },
@@ -140,7 +139,7 @@ var PushService = {
 
     // Allow time for sumologic to finish syncing.
     setTimeout(function() {
-      process.exit();
+      process.exit(); // eslint-disable-line no-process-exit
     }, 1100);
   },
 

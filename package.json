@@ -7,13 +7,15 @@
     "sumologic": "^1.0.0"
   },
   "devDependencies": {
-    "make-up": "^9.3.1"
+    "make-up": "^9.3.1",
+    "node-lambda": "^0.8.11"
   },
   "scripts": {
-    "start": "node script/send_push.js",
-    "test": "grunt test",
-    "lint": "make-up generated script src",
-    "build": "./script/generate_config.sh",
-    "ci": "npm run lint && npm run build"
+    "start": "node script/send_pushes.js",
+    "test": "npm test",
+    "lint": "make-up script src",
+    "build": "cp template.env .env && ./script/generate_config.sh >> .env",
+    "ci": "npm run lint && npm run build && npm run deploy",
+    "deploy": "TMPDIR=/tmp node-lambda deploy"
   }
 }
