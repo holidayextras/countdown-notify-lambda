@@ -190,7 +190,7 @@ const PushService = {
         return console.log('Sent push notification to device: ' + device.DeviceID);
       });
     });
-  },
+  }
 
 };
 
