@@ -11,7 +11,7 @@
     "node-lambda": "^0.8.11"
   },
   "scripts": {
-    "start": "node script/send_pushes.js",
+    "start": "node-lambda run",
     "test": "npm test",
     "lint": "make-up script src",
     "build": "cp template.env .env && ./script/generate_config.sh >> .env",

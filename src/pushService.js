@@ -1,53 +1,25 @@
 'use strict';
 
-var NodePush = require('node-pushnotifications');
-var PushNotifications = new NodePush();
-var AWS = require('aws-sdk');
-var moment = require('moment');
-var async = require('async');
-var _ = {
+const NodePush = require('node-pushnotifications');
+const PushNotifications = new NodePush();
+const moment = require('moment');
+const async = require('async');
+const AWS = require('./aws_configured');
+const Certs = require('./certs');
+const pushConfig = require('./push_config');
+const _ = {
   each: require('lodash/each')
 };
 
-AWS.config.update({
-  region: process.env.AWS_REGION,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-});
+const docClient = new AWS.DynamoDB.DocumentClient();
 
-var docClient = new AWS.DynamoDB.DocumentClient();
-
-var PushService = {
+const PushService = {
 
   startTime: null,
 
   pushQueue: [],
   queueInterval: 1000 / 50, // 1 Second divided by the dynamodb rate limit.
   pushCount: 0,
-
-  pushSettings: {
-    gcm: {
-      id: process.env.GCM_SERVER_API_KEY,
-      msgcnt: 1,
-      dataDefaults: {
-        delayWhileIdle: false,
-        timeToLive: 4 * 7 * 24 * 3600, // 4 weeks
-        retries: 4
-      }
-    },
-    apn: {
-      gateway: process.env.APN_GATEWAY,
-      badge: 1,
-      defaultData: {
-        expiry: 4 * 7 * 24 * 3600, // 4 weeks
-        sound: 'ping.aiff'
-      },
-      options: {
-        cert: process.env.APN.CERT,
-        key: process.env.APN.KEY
-      }
-    }
-  },
 
   scenarios: [
     {
@@ -93,15 +65,17 @@ var PushService = {
   ],
 
   init: function() {
-    var _this = this;
 
-    _this.startTime = moment();
+    this.startTime = moment();
 
     console.log('----------------------------------------------------------------------------------');
     console.log('Countdown Push Notification Service');
     console.log('----------------------------------------------------------------------------------');
 
-    async.concat(_this.scenarios, _this.findEvents, function(err, results) {
+    Certs.downloadCerts();
+
+    var _this = this;
+    async.concat(this.scenarios, this.findEvents, function(err, results) {
       if (err) {
         console.log(err);
       }
@@ -210,13 +184,13 @@ var PushService = {
         title: message
       };
 
-      var dispatcher = new PushNotifications(PushService.pushSettings);
+      var dispatcher = new PushNotifications(pushConfig);
       return dispatcher.send([device.PushID], data, function() {
         _this.pushCount++;
         return console.log('Sent push notification to device: ' + device.DeviceID);
       });
     });
-  }
+  },
 
 };
 
