@@ -1,4 +1,6 @@
 {
+  "repository": "https://github.com/holidayextras/countdown-notify-lambda",
+  "license": "ISC",
   "dependencies": {
     "async": "^2.1.2",
     "aws-sdk": "^2.6.12",
