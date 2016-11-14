@@ -5,6 +5,7 @@
     "async": "^2.1.2",
     "aws-sdk": "^2.6.12",
     "lodash": "^4.16.4",
+    "moment": "^2.16.0",
     "node-pushnotifications": "git+https://github.com/Ryanthegiantlion/node-pushnotifications.git",
     "sumologic": "^1.0.0"
   },
