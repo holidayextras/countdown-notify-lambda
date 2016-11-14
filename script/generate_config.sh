@@ -15,7 +15,7 @@ else
   echo "APN_GATEWAY=gateway.sandbox.push.apple.com"
 fi
 
-echo "APN_CERT=${APN_CERT}"
-echo "APN_KEY=${APN_KEY}"
 echo "SUMOLOGIC_URL=${SUMOLOGIC_URL}"
 echo "SUMOLOGIC_CODE=${SUMOLOGIC_CODE}"
+
+
