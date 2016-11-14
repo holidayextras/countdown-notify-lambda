@@ -6,7 +6,7 @@ const AWS = require('./aws_configured');
 
 var Certs = {};
 
-Certs._outputDir = './certs';
+Certs._outputDir = '/tmp/certs';
 Certs._cert = 'aps.pem';
 Certs._key = 'push_services_key.pem';
 
