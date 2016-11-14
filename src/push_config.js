@@ -1,8 +1,8 @@
 'use strict';
 
-var Certs = require('./certs');
+const Certs = require('./certs');
 
-var settings = {
+const settings = {
   gcm: {
     id: process.env.GCM_SERVER_API_KEY,
     msgcnt: 1,
@@ -21,10 +21,10 @@ var settings = {
     },
     // See all available options at https://github.com/argon/node-apn/blob/master/doc/connection.markdown
     options: {
-      cert: Certs.cert,
-      key: Certs.key
+      cert: Certs.certFullPath(),
+      key: Certs.keyFullPath()
     }
   }
 };
 
-module.export = settings;
+module.exports = settings;

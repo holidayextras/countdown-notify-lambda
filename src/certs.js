@@ -1,19 +1,26 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
-var AWS = require('./aws_configured');
+const fs = require('fs');
+const path = require('path');
+const AWS = require('./aws_configured');
 
 var Certs = {};
 
 Certs._outputDir = './certs';
-Certs.cert = 'aps.pem';
-Certs.key = 'push_services_key.pem';
+Certs._cert = 'aps.pem';
+Certs._key = 'push_services_key.pem';
+
+Certs.certFullPath = function() {
+  return path.resolve(path.join(Certs._outputDir, Certs._cert));
+};
+
+Certs.keyFullPath = function() {
+  return path.resolve(path.join(Certs._outputDir, Certs._key));
+};
 
 Certs.downloadCerts = function() {
-  console.log('_downloadedCerts()');
-  Certs._get(Certs.cert);
-  Certs._get(Certs.key);
+  Certs._get(Certs._cert);
+  Certs._get(Certs._key);
 };
 
 Certs._createDirectory = function() {
@@ -24,13 +31,12 @@ Certs._createDirectory = function() {
 
 Certs._get = function(file) {
   Certs._createDirectory();
-  var bucket = path.join(process.env.CERT_BUCKET, process.env.NODE_ENV);
   const params = {
-    Bucket: bucket,
+    Bucket: process.env.CERT_BUCKET + '-' + process.env.NODE_ENV,
     Key: file
   };
-  var s3 = new AWS.S3();
-  var readStream = s3.getObject(params).createReadStream();
+  const s3 = new AWS.S3();
+  const readStream = s3.getObject(params).createReadStream();
   const outputFileName = path.join(Certs._outputDir, file);
   const writable = fs.createWriteStream(outputFileName);
   readStream.pipe(writable);

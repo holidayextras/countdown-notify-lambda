@@ -1,12 +1,12 @@
 'use strict';
 
-const NodePush = require('node-pushnotifications');
-const PushNotifications = new NodePush();
+const PushNotifications = require('node-pushnotifications');
 const moment = require('moment');
 const async = require('async');
 const AWS = require('./aws_configured');
 const Certs = require('./certs');
 const pushConfig = require('./push_config');
+const scenarios = require('./scenarios');
 const _ = {
   each: require('lodash/each')
 };
@@ -21,49 +21,6 @@ const PushService = {
   queueInterval: 1000 / 50, // 1 Second divided by the dynamodb rate limit.
   pushCount: 0,
 
-  scenarios: [
-    {
-      startTime: moment(),
-      message: 'Events in the next hour'
-    },
-    {
-      startTime: moment().add(1, 'day'),
-      message: 'Events in the next day'
-    },
-    {
-      startTime: moment().add(2, 'days'),
-      message: 'Events in the next two days'
-    },
-    {
-      startTime: moment().add(3, 'days'),
-      message: 'Events in the next three days'
-    },
-    {
-      startTime: moment().add(1, 'week'),
-      message: 'Events in the next week'
-    },
-    {
-      startTime: moment().add(2, 'weeks'),
-      message: 'Events in the next two week'
-    },
-    {
-      startTime: moment().add(1, 'month'),
-      message: 'Events in the next month'
-    },
-    {
-      startTime: moment().add(3, 'months'),
-      message: 'Events in the next three months'
-    },
-    {
-      startTime: moment().add(6, 'months'),
-      message: 'Events in the next six months'
-    },
-    {
-      startTime: moment().add(1, 'year'),
-      message: 'Events in the next year'
-    }
-  ],
-
   init: function() {
 
     this.startTime = moment();
@@ -75,7 +32,7 @@ const PushService = {
     Certs.downloadCerts();
 
     var _this = this;
-    async.concat(this.scenarios, this.findEvents, function(err, results) {
+    async.concat(scenarios, this.findEvents, function(err, results) {
       if (err) {
         console.log(err);
       }
@@ -137,13 +94,15 @@ const PushService = {
   findEvents: function(scenario, callback) {
     var eventParams = {
       TableName: 'MobAppEvent',
-      ProjectionExpression: 'ID, DeviceID, StartDate, TextColour, Background, Destination',
-      FilterExpression: 'StartDate >= :min_start and StartDate < :max_start',
-      ExpressionAttributeValues: {
+      ProjectionExpression: 'ID, DeviceID, StartDate, TextColour, Background, Destination'
+    };
+    if (scenario.startTime) {
+      eventParams.FilterExpression = 'StartDate >= :min_start and StartDate < :max_start';
+      eventParams.ExpressionAttributeValues = {
         ':min_start': scenario.startTime.format(),
         ':max_start': scenario.startTime.add(1, 'hour').format()
-      }
-    };
+      };
+    }
 
     docClient.scan(eventParams, function(err, events) {
       if (err) {
@@ -166,7 +125,7 @@ const PushService = {
 
   sendPushNotification: function(push) {
     var _this = this;
-    var message = push.Scenario.message;
+    const message = push.Scenario.message;
 
     PushService.findDevice(push.Event.DeviceID, function(err, result) {
       if (err) {
@@ -179,15 +138,18 @@ const PushService = {
         return console.log('Device not registered: ' + push.Event.DeviceID);
       }
 
-      var device = result.Items[0];
-      var data = {
-        title: message
+      const device = result.Items[0];
+      const data = {
+        title: 'example title',
+        message: message
       };
-
-      var dispatcher = new PushNotifications(pushConfig);
-      return dispatcher.send([device.PushID], data, function() {
+      const strippedDeviceId = device.PushID.replace(/^countdown\-/, '');
+      console.log('push config: ', pushConfig);
+      const dispatcher = new PushNotifications(pushConfig);
+      return dispatcher.send([strippedDeviceId], data, function(status) {
+        console.log(status);
         _this.pushCount++;
-        return console.log('Sent push notification to device: ' + device.DeviceID);
+        return console.log('Sent push notification to device: ' + strippedDeviceId);
       });
     });
   }

@@ -2,6 +2,7 @@
 // Example script to send a push notification to iOS
 
 const pushConfig = require('./push_config');
+const PushNotifications = require('node-pushnotifications');
 
 var deviceId = process.argv[2];
 
@@ -9,8 +10,6 @@ if (!deviceId) {
   console.log('Device ID required');
 }
 console.log('Sending to: ', deviceId);
-
-var PushNotifications = require('node-pushnotifications');
 
 var data = {
   title: 'New push notification',
