@@ -5,6 +5,8 @@ set -e
 NODE_ENV=${NODE_ENV:=development}
 
 echo "NODE_ENV=${NODE_ENV}"
+echo "AWS_ENVIRONMENT=${NODE_ENV}"
+
 echo "GCM_SENDER_ID=${GCM_SENDER_ID}"
 
 if [ "${NODE_ENV}" = "production" ]; then

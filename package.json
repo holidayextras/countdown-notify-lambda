@@ -9,6 +9,7 @@
     "sumologic": "^1.0.0"
   },
   "devDependencies": {
+    "dotenv": "^2.0.0",
     "make-up": "^9.3.1",
     "node-lambda": "^0.8.11"
   },
