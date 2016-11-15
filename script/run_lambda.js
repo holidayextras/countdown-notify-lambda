@@ -1,4 +1,5 @@
 'use strict';
+// Example script to invoke the lambda function programmatically
 
 require('dotenv').config();
 const AWS = require('../src/aws_configured');
