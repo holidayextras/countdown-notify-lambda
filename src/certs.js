@@ -35,7 +35,7 @@ Certs._get = function(file) {
     Bucket: process.env.CERT_BUCKET + '-' + process.env.NODE_ENV,
     Key: file
   };
-  console.log('params: ', params);
+
   const s3 = new AWS.S3();
   const readStream = s3.getObject(params).createReadStream();
   const outputFileName = path.join(Certs._outputDir, file);

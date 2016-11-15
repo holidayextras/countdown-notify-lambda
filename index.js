@@ -4,7 +4,7 @@ var PushService = require('./src/pushService');
 var SumoLogger = require('sumologic');
 
 // For development/testing purposes
-exports.handler = function() {
+exports.handler = function(event, context, callback) {
   // Set up logging for production.
   if (process.env.NODE_ENV === 'production') {
     var logger = new SumoLogger(process.env.SUMOLOGIC_CODE, {
@@ -16,6 +16,5 @@ exports.handler = function() {
     logger.augmentConsole();
   }
 
-  // Initialise the push service.
-  PushService.init();
+  PushService.init(callback);
 };

@@ -7,9 +7,6 @@ const AWS = require('./aws_configured');
 const Certs = require('./certs');
 const pushConfig = require('./push_config');
 const scenarios = require('./scenarios');
-const _ = {
-  each: require('lodash/each')
-};
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 
@@ -17,12 +14,10 @@ const PushService = {
 
   startTime: null,
 
-  pushQueue: [],
   queueInterval: 1000 / 50, // 1 Second divided by the dynamodb rate limit.
   pushCount: 0,
 
-  init: function() {
-
+  init: function(callback) {
     this.startTime = moment();
 
     console.log('----------------------------------------------------------------------------------');
@@ -30,69 +25,67 @@ const PushService = {
     console.log('----------------------------------------------------------------------------------');
 
     Certs.downloadCerts();
-
-    var _this = this;
-    async.concat(scenarios, this.findEvents, function(err, results) {
+    return async.concat(scenarios, this.findEvents, (err, eventsFound) => {
       if (err) {
-        console.log(err);
+        return callback(err);
       }
 
-      _this.pushQueue = results;
-      return _this.processPushQueue();
+      console.log('Events found: ', eventsFound.length);
+
+      return async.map(eventsFound, this.addDeviceToResult, (err2, eventsAndDevices) => {
+        if (err2) {
+          return callback(err2);
+        }
+        let pushableEvents = eventsAndDevices.filter(this.canPush);
+
+        console.log('Pushable events found: ', pushableEvents.length);
+
+        return async.each(eventsFound, this.sendPushNotification.bind(this), (err3) => {
+          if (err3) {
+            return callback(err3);
+          }
+          this.displaySummary();
+          return callback(null, 'OK');
+        });
+      });
     });
   },
 
-  processPushQueue: function() {
-    var _this = this;
-
-    if (_this.pushQueue.length === 0) {
-      var duration = moment().diff(_this.startTime);
-
-      // Wait for the last job to complete.
-      return setTimeout(function() {
-        _this.displaySummary(duration);
-      }, _this.queueInterval);
-    }
-
-    // Pop a job of the push queue.
-    _this.sendPushNotification(_this.pushQueue.pop());
-
-    // Run this method again once the queueInterval has elapsed.
-    return setTimeout(function() {
-      _this.processPushQueue();
-    }, _this.queueInterval);
+  canPush: function(item) {
+    return item.Device && item.Device.PushID;
   },
 
-  displaySummary: function(duration) {
+  displaySummary: function() {
+    var duration = moment().diff(this.startTime);
     console.log('----------------------------------------------------------------------------------');
     console.log('Sent ' + this.pushCount + ' push notifications in ' + duration / 1000.0 + ' seconds.');
     console.log('----------------------------------------------------------------------------------');
-
-    // Allow time for sumologic to finish syncing.
-    setTimeout(function() {
-      process.exit(); // eslint-disable-line no-process-exit
-    }, 1100);
   },
 
-  findDevice: function(deviceId, callback) {
+  addDeviceToResult: function(result, callback) {
+    let deviceId = result.Event.DeviceID;
     var deviceParams = {
       TableName: 'MobAppDevice',
-      Index: 'DeviceID',
+      //Index: 'DeviceID',
       KeyConditionExpression: 'DeviceID = :device_id',
       ExpressionAttributeValues: {
         ':device_id': deviceId
       }
     };
-
-    docClient.query(deviceParams, function(err, result) {
-      if (err) console.log(err);
-
-      callback(err, result);
+    docClient.query(deviceParams, function(err, results) {
+      if (err) {
+        return callback(err);
+      }
+      if (results.Count > 0) {
+        result.Device = results.Items[0];
+      }
+      return callback(null, result);
     });
   },
 
   findEvents: function(scenario, callback) {
-    var eventParams = {
+    console.log('findEvents(): ', scenario);
+    let eventParams = {
       TableName: 'MobAppEvent',
       ProjectionExpression: 'ID, DeviceID, StartDate, TextColour, Background, Destination'
     };
@@ -103,54 +96,38 @@ const PushService = {
         ':max_start': scenario.startTime.add(1, 'hour').format()
       };
     }
+    console.log(eventParams);
 
     docClient.scan(eventParams, function(err, events) {
       if (err) {
-        console.log(err);
         return callback(err);
       }
 
-      var pushes = [];
-
-      _.each(events.Items, function(event) {
-        pushes.push({
+      let pushes = events.Items.map(function(event) {
+        return {
           Event: event,
           Scenario: scenario
-        });
+        };
       });
 
       return callback(null, pushes);
     });
   },
 
-  sendPushNotification: function(push) {
+  sendPushNotification: function(push, callback) {
+    console.log('sendPushNotification()', push);
     var _this = this;
-    const message = push.Scenario.message;
-
-    PushService.findDevice(push.Event.DeviceID, function(err, result) {
-      if (err) {
-        return console.log(err);
-      }
-
-      // Check that the device exists and is capabale of receiving
-      // push notifications.
-      if (result.Count === 0 || !result.Items[0].PushID) {
-        return console.log('Device not registered: ' + push.Event.DeviceID);
-      }
-
-      const device = result.Items[0];
-      const data = {
-        title: 'example title',
-        message: message
-      };
-      const strippedDeviceId = device.PushID.replace(/^countdown\-/, '');
-      console.log('push config: ', pushConfig);
-      const dispatcher = new PushNotifications(pushConfig);
-      return dispatcher.send([strippedDeviceId], data, function(status) {
-        console.log(status);
-        _this.pushCount++;
-        return console.log('Sent push notification to device: ' + strippedDeviceId);
-      });
+    const data = {
+      title: 'example title',
+      message: push.Scenario.message
+    };
+    const pushId = push.Device.PushID;
+    const dispatcher = new PushNotifications(pushConfig);
+    return dispatcher.send([pushId], data, function(status) {
+      console.log(status);
+      _this.pushCount++;
+      console.log('Sent push notification to device: ' + push.Device.DeviceID);
+      return callback();
     });
   }
 
