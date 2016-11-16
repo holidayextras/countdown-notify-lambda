@@ -4,10 +4,6 @@ const moment = require('moment');
 
 const Scenarios = [
   {
-    startTime: null,
-    message: 'All events'
-  },
-  {
     startTime: moment(),
     message: 'Events in the next hour'
   },
