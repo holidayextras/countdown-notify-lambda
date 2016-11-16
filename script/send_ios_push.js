@@ -1,7 +1,7 @@
 'use strict';
 // Example script to send a push notification to iOS
 
-const pushConfig = require('./push_config');
+const pushConfig = require('./pushConfig');
 const PushNotifications = require('node-pushnotifications');
 
 var deviceId = process.argv[2];

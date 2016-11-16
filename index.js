@@ -1,6 +1,6 @@
 'use strict';
 
-var PushService = require('./src/pushService');
+var pushService = require('./src/pushService');
 var SumoLogger = require('sumologic');
 
 // For development/testing purposes
@@ -21,5 +21,5 @@ exports.handler = function(event, context, callback) {
     logger.augmentConsole();
   }
 
-  PushService.init(callback);
+  pushService.run(callback);
 };

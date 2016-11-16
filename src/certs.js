@@ -2,9 +2,9 @@
 
 const fs = require('fs');
 const path = require('path');
-const AWS = require('./aws_configured');
+const AWS = require('./awsConfigured');
 
-var Certs = {};
+const Certs = {};
 
 Certs._outputDir = '/tmp/certs';
 Certs._cert = 'aps.pem';
