@@ -29,18 +29,25 @@ Certs._createDirectory = function() {
   }
 };
 
-Certs._get = function(file) {
-  Certs._createDirectory();
+Certs._getRemoteStream = function(file) {
   const params = {
     Bucket: process.env.CERT_BUCKET + '-' + process.env.NODE_ENV,
     Key: file
   };
-
   const s3 = new AWS.S3();
-  const readStream = s3.getObject(params).createReadStream();
+  return s3.getObject(params).createReadStream();
+};
+
+Certs._getLocalStream = function(file) {
   const outputFileName = path.join(Certs._outputDir, file);
-  const writable = fs.createWriteStream(outputFileName);
-  readStream.pipe(writable);
+  return fs.createWriteStream(outputFileName);
+};
+
+Certs._get = function(file) {
+  Certs._createDirectory();
+  const remoteStream = Certs._getRemoteStream(file);
+  const localStream = Certs._getLocalStream(file);
+  remoteStream.pipe(localStream);
 };
 
 module.exports = Certs;
