@@ -21,5 +21,12 @@ exports.handler = function(event, context, callback) {
     logger.augmentConsole();
   }
 
-  pushService.run(callback);
+  pushService.run()
+  .then(function() {
+    return callback(null, 'OK');
+  })
+  .catch(function(reason) {
+    console.log(reason);
+    callback(reason);
+  });
 };

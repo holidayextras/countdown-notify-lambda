@@ -2,10 +2,12 @@
 
 const chai = require('chai');
 const sinon = require('sinon');
-var dirtyChai = require('dirty-chai');
+const dirtyChai = require('dirty-chai');
 const sinonChai = require('sinon-chai');
+const chaiAsPromised = require('chai-as-promised');
 chai.use(dirtyChai);
 chai.use(sinonChai);
+chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 const pushService = require('../src/pushService');
@@ -27,17 +29,16 @@ describe('pushService', function() {
 
   describe('run()', function() {
 
-    let callerCallback;
+    let service;
 
     beforeEach(function() {
-      callerCallback = sandbox.stub();
       sandbox.stub(Certs, 'downloadCerts');
       sandbox.stub(pushService, 'findEvents');
     });
 
     context('when there are no errors', function() {
 
-      beforeEach(function() {
+      beforeEach(function(done) {
         pushService.findEvents.yields(null, [{
           Event: {},
           Scenario: {}
@@ -54,7 +55,7 @@ describe('pushService', function() {
         pushService.canPush.returns(true);
         sandbox.stub(pushService, 'sendPushNotification');
         pushService.sendPushNotification.yields();
-        pushService.run(callerCallback);
+        service = pushService.run().then(done);
       });
 
       it('downloads required certificates', function() {
@@ -77,8 +78,8 @@ describe('pushService', function() {
         expect(pushService.sendPushNotification).to.have.callCount(scenarios.length);
       });
 
-      it('runs provided callback with a success response', function() {
-        expect(callerCallback).to.have.been.calledWith(null, 'OK');
+      it('fulfills the promise', function() {
+        expect(service).to.be.fulfilled();
       });
 
     });
@@ -87,11 +88,11 @@ describe('pushService', function() {
 
       beforeEach(function() {
         pushService.findEvents.yields('FAKE_ERROR');
-        pushService.run(callerCallback);
+        pushService.run();
       });
 
-      it('runs provided callback with an error response', function() {
-        expect(callerCallback).to.have.been.calledWith('FAKE_ERROR');
+      it('rejects the promise', function() {
+        expect(service).to.eventually.be.rejectedWith('FAKE_ERROR');
       });
 
     });
@@ -108,7 +109,10 @@ describe('pushService', function() {
       PushNotifications.prototype.send.yields({});
       pushService.sendPushNotification({
         Device: {},
-        Scenario: {}
+        Scenario: {},
+        Event: {
+          Destination: 'Skatepark'
+        }
       }, callerCallback);
     });
 
@@ -116,7 +120,7 @@ describe('pushService', function() {
       expect(PushNotifications.prototype.send).to.have.been.called();
     });
 
-    it('run the provided callback', function() {
+    it('runs the provided callback', function() {
       expect(callerCallback).to.have.been.called();
     });
 
