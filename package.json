@@ -25,6 +25,6 @@
     "lint": "make-up script src test",
     "build": "cp template.env .env && ./script/generate_config.sh >> .env",
     "ci": "npm run lint && npm run build && npm test",
-    "deploy": "TMPDIR=/tmp node-lambda --configFile .env deploy"
+    "deploy": "npm run build && TMPDIR=/tmp node-lambda --configFile .env deploy"
   }
 }

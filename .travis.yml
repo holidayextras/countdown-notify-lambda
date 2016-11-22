@@ -12,3 +12,5 @@ deploy:
   skip_cleanup: true
   on:
     branch: staging
+  on:
+    branch: master
