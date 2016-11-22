@@ -1,0 +1,30 @@
+{
+  "repository": "https://github.com/holidayextras/countdown-notify-lambda",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.6.12",
+    "lodash": "^4.16.4",
+    "moment": "^2.16.0",
+    "node-pushnotifications": "git+https://github.com/Ryanthegiantlion/node-pushnotifications.git",
+    "sumologic": "^1.0.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "dirty-chai": "^1.2.2",
+    "dotenv": "^2.0.0",
+    "make-up": "^9.3.1",
+    "mocha": "^3.1.2",
+    "node-lambda": "^0.8.11",
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0"
+  },
+  "scripts": {
+    "start": "node-lambda run",
+    "test": "mocha -R spec",
+    "lint": "make-up script src test",
+    "build": "cp template.env .env && ./script/generate_config.sh >> .env",
+    "ci": "npm run lint && npm run build && npm test && npm run deploy",
+    "deploy": "TMPDIR=/tmp node-lambda --configFile .env deploy"
+  }
+}
