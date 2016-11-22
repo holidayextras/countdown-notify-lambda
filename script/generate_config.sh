@@ -15,6 +15,9 @@ else
   echo "APN_GATEWAY=gateway.sandbox.push.apple.com"
 fi
 
+echo "AWS_ROLE_ARN=arn:aws:iam::${AWS_ACCOUNT}:role/CountdownNotify-${NODE_ENV}"
+
+
 echo "SUMOLOGIC_URL=${SUMOLOGIC_URL}"
 echo "SUMOLOGIC_CODE=${SUMOLOGIC_CODE}"
 
