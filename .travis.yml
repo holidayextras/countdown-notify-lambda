@@ -3,14 +3,16 @@ language: node_js
 cache:
   directories:
   - node_modules
-script:
-- npm run ci
+script: npm run ci
 
 deploy:
-  provider: script
-  script: script/deploy.sh
-  skip_cleanup: true
-  on:
-    branch: staging
-  on:
-    branch: master
+  - provider: script
+    script: script/deploy.sh
+    skip_cleanup: true
+    on:
+      branch: staging
+  - provider: script
+    script: script/deploy.sh
+    skip_cleanup: true
+    on:
+      branch: master
