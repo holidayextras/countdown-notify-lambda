@@ -116,6 +116,7 @@ pushService.addDeviceToResult = function(result, callback) {
 };
 
 pushService.findEvents = function(scenario, callback) {
+  console.log('Finding events for scenario: ', scenario.message);
   let eventParams = {
     TableName: 'MobAppEvent',
     ProjectionExpression: 'ID, DeviceID, StartDate, TextColour, Background, Destination'
