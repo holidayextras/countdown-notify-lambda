@@ -16,7 +16,7 @@ pushService.run = function() {
   this._pushCount = 0;
 
   console.log('----------------------------------------------------------------------------------');
-  console.log('Countdown Push Notification Service');
+  console.log('Countdown Push Notification Service - started at: ' + this._startTime.format());
   console.log('----------------------------------------------------------------------------------');
 
   Certs.downloadCerts();
@@ -116,6 +116,7 @@ pushService.addDeviceToResult = function(result, callback) {
 };
 
 pushService.findEvents = function(scenario, callback) {
+  console.log('Finding events for scenario: ', scenario.message);
   let eventParams = {
     TableName: 'MobAppEvent',
     ProjectionExpression: 'ID, DeviceID, StartDate, TextColour, Background, Destination'

@@ -24,7 +24,7 @@
     "test": "mocha -R spec",
     "lint": "make-up script src test",
     "build": "cp template.env .env && ./script/generate_config.sh >> .env",
-    "ci": "npm run lint && npm run build && npm test && npm run deploy",
-    "deploy": "TMPDIR=/tmp node-lambda --configFile .env deploy"
+    "ci": "npm run lint && npm run build && npm test",
+    "deploy": "npm run build && TMPDIR=/tmp node-lambda --configFile .env deploy"
   }
 }
