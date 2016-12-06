@@ -170,6 +170,7 @@ pushService.sendPushNotification = function(push, callback) {
 pushService._generateEventPushConfig = function(event) {
   return _.assign({
     custom: {
+      type: 'reminder',
       eventId: event.ID
     }
   }, pushConfig);
