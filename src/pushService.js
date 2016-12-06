@@ -6,6 +6,7 @@ const AWS = require('./awsConfigured');
 const Certs = require('./certs');
 const pushConfig = require('./pushConfig');
 const scenarios = require('./scenarios');
+const _ = require('lodash');
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 
@@ -148,19 +149,30 @@ pushService.findEvents = function(scenario, callback) {
 
 pushService.sendPushNotification = function(push, callback) {
   console.log('sendPushNotification()', push);
-  let _this = this;
   const data = {
     title: push.Event.Destination,
     message: push.Scenario.message
   };
   const pushId = push.Device.PushID;
-  const dispatcher = new PushNotifications(pushConfig);
+
+  const eventConfig = this._generateEventPushConfig(push.Event);
+  console.log('event config: ', eventConfig);
+  const dispatcher = new PushNotifications(eventConfig);
+  let _this = this;
   return dispatcher.send([pushId], data, function(status) {
-    console.log(status);
+    console.log('dispatcher status: ', status);
     _this._pushCount++;
     console.log('Sent push notification to device: ' + push.Device.DeviceID);
     return callback();
   });
+};
+
+pushService._generateEventPushConfig = function(event) {
+  return _.assign({
+    custom: {
+      eventId: event.ID
+    }
+  }, pushConfig);
 };
 
 module.exports = pushService;
