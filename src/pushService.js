@@ -6,7 +6,6 @@ const AWS = require('./awsConfigured');
 const Certs = require('./certs');
 const pushConfig = require('./pushConfig');
 const scenarios = require('./scenarios');
-const _ = require('lodash');
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 
@@ -149,15 +148,10 @@ pushService.findEvents = function(scenario, callback) {
 
 pushService.sendPushNotification = function(push, callback) {
   console.log('sendPushNotification()', push);
-  const data = {
-    title: push.Event.Destination,
-    message: push.Scenario.message
-  };
   const pushId = push.Device.PushID;
-
-  const eventConfig = this._generateEventPushConfig(push.Event);
-  console.log('event config: ', eventConfig);
-  const dispatcher = new PushNotifications(eventConfig);
+  const data = this._generatePushData(push);
+  console.log('push data: ', data);
+  const dispatcher = new PushNotifications(pushConfig);
   let _this = this;
   return dispatcher.send([pushId], data, function(status) {
     console.log('dispatcher status: ', status);
@@ -167,13 +161,15 @@ pushService.sendPushNotification = function(push, callback) {
   });
 };
 
-pushService._generateEventPushConfig = function(event) {
-  return _.assign({
+pushService._generatePushData = function(push) {
+  return {
+    title: push.Event.Destination,
+    message: push.Scenario.message,
     custom: {
       type: 'reminder',
-      eventId: event.ID
+      eventId: push.Event.ID
     }
-  }, pushConfig);
+  };
 };
 
 module.exports = pushService;
