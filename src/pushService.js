@@ -116,7 +116,7 @@ pushService.addDeviceToResult = function(result, callback) {
 };
 
 pushService.findEvents = function(scenario, callback) {
-  console.log('Finding events for scenario: ', scenario.message);
+  console.log('Finding events for scenario: ', scenario.label);
   let eventParams = {
     TableName: 'MobAppEvent',
     ProjectionExpression: 'ID, DeviceID, StartDate, TextColour, Background, Destination'
@@ -162,9 +162,10 @@ pushService.sendPushNotification = function(push, callback) {
 };
 
 pushService._generatePushData = function(push) {
+  let message = push.Scenario.messageTemplate.replace('%s', push.Event.Destination);
   return {
-    title: push.Event.Destination,
-    message: push.Scenario.message,
+    title: 'Countdown Reminder',
+    message: message,
     custom: {
       type: 'reminder',
       eventId: push.Event.ID
