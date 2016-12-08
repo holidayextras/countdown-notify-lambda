@@ -99,7 +99,7 @@ describe('pushService', function() {
 
   });
 
-  describe.only('_generatePushData()', function () {
+  describe('_generatePushData()', function() {
 
     let result;
 
