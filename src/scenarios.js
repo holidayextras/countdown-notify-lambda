@@ -20,10 +20,10 @@ const Scenarios = [
     label: 'Events in the next day',
     Android: {
       titleTemplate: 'Countdown to %s',
-      messageTemplate: "🚀 Only 1 day to go! Share your countdown and bask in the glory of endless ‘likes’. 👍"
+      messageTemplate: '🚀 Only 1 day to go! Share your countdown and bask in the glory of endless ‘likes’. 👍'
     },
     iOS: {
-      titleTemplate: "🚀 Only 1 day until %s! Share your countdown and bask in the glory of endless ‘likes’. 👍",
+      titleTemplate: '🚀 Only 1 day until %s! Share your countdown and bask in the glory of endless ‘likes’. 👍',
       messageTemplate: 'Reminder'
     }
   },
@@ -92,7 +92,7 @@ const Scenarios = [
     label: 'Events in the next three months',
     Android: {
       titleTemplate: 'Countdown to %s',
-      messageTemplate: "🚀 Only 3 months to go! Share your countdown and bask in the glory of endless ‘likes’. 👍"
+      messageTemplate: '🚀 Only 3 months to go! Share your countdown and bask in the glory of endless ‘likes’. 👍'
     },
     iOS: {
       titleTemplate: '🚀 3 months until %s! Share your countdown and bask in the glory of endless ‘likes’. 👍',
@@ -104,7 +104,7 @@ const Scenarios = [
     label: 'Events in the next six months',
     Android: {
       titleTemplate: 'Countdown to %s',
-      messageTemplate: "🚀 Only 6 months to go! Share your countdown and bask in the glory of endless ‘likes’. 👍"
+      messageTemplate: '🚀 Only 6 months to go! Share your countdown and bask in the glory of endless ‘likes’. 👍'
     },
     iOS: {
       titleTemplate: '🚀 6 months until %s! Share your countdown and bask in the glory of endless ‘likes’. 👍',
@@ -116,7 +116,7 @@ const Scenarios = [
     label: 'Events in the next year',
     Android: {
       titleTemplate: 'Countdown to %s',
-      messageTemplate: "🚀 Only 1 year to go! Share your countdown and bask in the glory of endless ‘likes’. 👍"
+      messageTemplate: '🚀 Only 1 year to go! Share your countdown and bask in the glory of endless ‘likes’. 👍'
     },
     iOS: {
       titleTemplate: '🚀1 year until %s! Share your countdown and bask in the glory of endless ‘likes’. 👍',
