@@ -162,9 +162,11 @@ pushService.sendPushNotification = function(push, callback) {
 };
 
 pushService._generatePushData = function(push) {
-  let message = push.Scenario.messageTemplate.replace('%s', push.Event.Destination);
+  console.log('push: ', push);
+  let title = push.Scenario[push.Device.Platform].titleTemplate.replace('%s', push.Event.Destination);
+  let message = push.Scenario[push.Device.Platform].messageTemplate.replace('%s', push.Event.Destination);
   return {
-    title: 'Countdown Reminder',
+    title: title,
     message: message,
     custom: {
       type: 'reminder',
