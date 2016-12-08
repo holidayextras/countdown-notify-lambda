@@ -162,7 +162,6 @@ pushService.sendPushNotification = function(push, callback) {
 };
 
 pushService._generatePushData = function(push) {
-  console.log('push: ', push);
   let title = push.Scenario[push.Device.Platform].titleTemplate.replace('%s', push.Event.Destination);
   let message = push.Scenario[push.Device.Platform].messageTemplate.replace('%s', push.Event.Destination);
   return {

@@ -99,6 +99,47 @@ describe('pushService', function() {
 
   });
 
+  describe.only('_generatePushData()', function () {
+
+    let result;
+
+    beforeEach(function() {
+      const push = {
+        Device: {
+          Platform: 'BlackBerry'
+        },
+        Scenario: {
+          BlackBerry: {
+            titleTemplate: 'the title for %s',
+            messageTemplate: 'the message for %s'
+          }
+        },
+        Event: {
+          Destination: 'Skatepark',
+          ID: 123
+        }
+      };
+      result = pushService._generatePushData(push);
+    });
+
+    it('returns an object', function() {
+      expect(result).to.be.an('Object');
+    });
+
+    it('returns the event ID', function() {
+      expect(result.custom.eventId).to.equal(123);
+    });
+
+    it('includes the destination in the title', function() {
+      expect(result.title).to.equal('the title for Skatepark');
+    });
+
+    it('includes the destination in the message', function() {
+      expect(result.message).to.equal('the message for Skatepark');
+    });
+
+  });
+
   describe('sendPushNotification()', function() {
 
     let callerCallback;
@@ -108,8 +149,15 @@ describe('pushService', function() {
       sandbox.stub(PushNotifications.prototype, 'send');
       PushNotifications.prototype.send.yields({});
       pushService.sendPushNotification({
-        Device: {},
-        Scenario: {},
+        Device: {
+          Platform: 'BlackBerry'
+        },
+        Scenario: {
+          BlackBerry: {
+            titleTemplate: 'the title for %s',
+            messageTemplate: 'the message for %s'
+          }
+        },
         Event: {
           Destination: 'Skatepark'
         }
