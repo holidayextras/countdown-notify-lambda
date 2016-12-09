@@ -12,29 +12,29 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 const pushService = {};
 
 pushService.run = function() {
-  this._startTime = moment();
-  this._pushCount = 0;
+  pushService._startTime = moment();
+  pushService._pushCount = 0;
 
   console.log('----------------------------------------------------------------------------------');
-  console.log('Countdown Push Notification Service - started at: ' + this._startTime.format());
+  console.log('Countdown Push Notification Service - started at: ' + pushService._startTime.format());
   console.log('----------------------------------------------------------------------------------');
 
   Certs.downloadCerts();
 
-  return Promise.all(this.findAllEvents())
-  .then(this.concatResults)
+  return Promise.all(pushService.findAllEvents())
+  .then(pushService.concatResults)
   .then(results => {
-    return Promise.all(this.addDevicesToAllEvents(results));
+    return Promise.all(pushService.addDevicesToAllEvents(results));
   })
-  .then(this.concatResults)
+  .then(pushService.concatResults)
   .then(results => {
-    return results.filter(this.canPush);
+    return results.filter(pushService.canPush);
   })
   .then(results => {
-    return Promise.all(this.sendPushNotificationsForAllEvents(results));
+    return Promise.all(pushService.sendPushNotificationsForAllEvents(results));
   })
   .then(() => {
-    this.displaySummary();
+    pushService.displaySummary();
   });
 };
 
@@ -46,7 +46,7 @@ pushService.sendPushNotificationsForAllEvents = function(pushableEvents) {
   console.log('Found pushable events: ', pushableEvents.length);
   return pushableEvents.map((item) => {
     return new Promise((fulfill, reject) => {
-      this.sendPushNotification(item, function(err) {
+      pushService.sendPushNotification(item, function(err) {
         if (err) {
           return reject(err);
         }
@@ -60,7 +60,7 @@ pushService.addDevicesToAllEvents = function(events) {
   console.log('Found events: ', events.length);
   return events.map((item) => {
     return new Promise((fulfill, reject) => {
-      this.addDeviceToResult(item, function(err, eventAndDevice) {
+      pushService.addDeviceToResult(item, function(err, eventAndDevice) {
         if (err) {
           return reject(err);
         }
@@ -73,7 +73,7 @@ pushService.addDevicesToAllEvents = function(events) {
 pushService.findAllEvents = function() {
   return scenarios.map((item) => {
     return new Promise((fulfill, reject) => {
-      this.findEvents(item, function(err, eventsFound) {
+      pushService.findEvents(item, function(err, eventsFound) {
         if (err) {
           return reject(err);
         }
@@ -88,9 +88,9 @@ pushService.canPush = function(item) {
 };
 
 pushService.displaySummary = function() {
-  let duration = moment().diff(this._startTime);
+  let duration = moment().diff(pushService._startTime);
   console.log('----------------------------------------------------------------------------------');
-  console.log('Sent ' + this._pushCount + ' push notifications in ' + duration / 1000.0 + ' seconds.');
+  console.log('Sent ' + pushService._pushCount + ' push notifications in ' + duration / 1000.0 + ' seconds.');
   console.log('----------------------------------------------------------------------------------');
 };
 
@@ -149,13 +149,12 @@ pushService.findEvents = function(scenario, callback) {
 pushService.sendPushNotification = function(push, callback) {
   console.log('sendPushNotification()', push);
   const pushId = push.Device.PushID;
-  const data = this._generatePushData(push);
+  const data = pushService._generatePushData(push);
   console.log('push data: ', data);
   const dispatcher = new PushNotifications(pushConfig);
-  let _this = this;
   return dispatcher.send([pushId], data, function(status) {
     console.log('dispatcher status: ', status);
-    _this._pushCount++;
+    pushService._pushCount++;
     console.log('Sent push notification to device: ' + push.Device.DeviceID);
     return callback();
   });
