@@ -122,10 +122,11 @@ pushService.findEvents = function(scenario, callback) {
     ProjectionExpression: 'ID, DeviceID, StartDate, TextColour, Background, Destination'
   };
   if (scenario.startTime) {
-    eventParams.FilterExpression = 'StartDate >= :min_start and StartDate < :max_start';
+    eventParams.FilterExpression = 'StartDate >= :min_start and StartDate < :max_start and IsDraft = :false and IsRemoved = :false';
     eventParams.ExpressionAttributeValues = {
       ':min_start': scenario.startTime.format(),
-      ':max_start': scenario.startTime.add(1, 'hour').format()
+      ':max_start': scenario.startTime.add(1, 'hour').format(),
+      ':false': false
     };
   }
   console.log('Event search params: ', eventParams);
