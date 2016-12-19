@@ -7,8 +7,6 @@ const Certs = require('./certs');
 const pushConfig = require('./pushConfig');
 const scenarios = require('./scenarios');
 
-const docClient = new AWS.DynamoDB.DocumentClient();
-
 const pushService = {};
 
 pushService.run = function() {
@@ -104,7 +102,7 @@ pushService.addDeviceToResult = function(result, callback) {
       ':device_id': deviceId
     }
   };
-  docClient.query(deviceParams, function(err, results) {
+  pushService._getDocClient().query(deviceParams, function(err, results) {
     if (err) {
       return callback(err);
     }
@@ -131,7 +129,7 @@ pushService.findEvents = function(scenario, callback) {
   }
   console.log('Event search params: ', eventParams);
 
-  docClient.scan(eventParams, function(err, events) {
+  pushService._getDocClient().scan(eventParams, function(err, events) {
     if (err) {
       return callback(err);
     }
@@ -172,6 +170,13 @@ pushService._generatePushData = function(push) {
       eventId: push.Event.ID
     }
   };
+};
+
+pushService._getDocClient = function() {
+  if (!pushService._docClient) {
+    pushService._docClient = new AWS.DynamoDB.DocumentClient();
+  }
+  return pushService._docClient;
 };
 
 module.exports = pushService;
