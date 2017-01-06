@@ -119,12 +119,13 @@ pushService.findEvents = function(scenario, callback) {
     TableName: 'MobAppEvent',
     IndexName: 'NotificationIndex',
     ProjectionExpression: 'ID, DeviceID, StartDate, Destination',
-    KeyConditionExpression: 'IsRemoved = :false AND StartDate BETWEEN :min_start AND :max_start',
-    FilterExpression: 'IsDraft = :false',
+    KeyConditionExpression: 'SchemaVersion = :schema AND StartDate BETWEEN :min_start AND :max_start',
+    FilterExpression: 'IsRemoved = :false AND IsDraft = :false',
     ExpressionAttributeValues: {
       ':min_start': scenario.startTime.format(),
       ':max_start': scenario.startTime.add(1, 'hour').format(),
-      ':false': 'false'
+      ':false': false,
+      ':schema': 2
     }
   };
   console.log('Event search params: ', JSON.stringify(eventParams, null, 2));
