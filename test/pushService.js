@@ -178,7 +178,7 @@ describe('pushService', function() {
   describe('findEvents()', function() {
 
     let callerCallback;
-    let scanStub;
+    let queryStub;
 
     beforeEach(function() {
       callerCallback = sandbox.stub();
@@ -186,21 +186,21 @@ describe('pushService', function() {
         startTime: moment()
       };
       sandbox.stub(pushService, '_getDocClient');
-      scanStub = sandbox.stub().yields(null, {
+      queryStub = sandbox.stub().yields(null, {
         Items: []
       });
       pushService._getDocClient.returns({
-        scan: scanStub
+        query: queryStub
       });
       pushService.findEvents(scenario, callerCallback);
     });
 
     it('ignores draft and removed evants', function() {
-      expect(scanStub.firstCall.args[0].FilterExpression).to.contain('and IsDraft = :false and IsRemoved = :false');
+      expect(queryStub.firstCall.args[0].FilterExpression).to.contain('IsDraft = :false AND IsRemoved = :false');
     });
 
     it('queries the database', function() {
-      expect(scanStub).to.have.been.called();
+      expect(queryStub).to.have.been.called();
     });
 
     it('runs the provided callback', function() {

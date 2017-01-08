@@ -120,7 +120,7 @@ pushService.findEvents = function(scenario, callback) {
     IndexName: 'NotificationIndex',
     ProjectionExpression: 'ID, DeviceID, StartDate, Destination',
     KeyConditionExpression: 'SchemaVersion = :schema AND StartDate BETWEEN :min_start AND :max_start',
-    FilterExpression: 'IsRemoved = :false AND IsDraft = :false',
+    FilterExpression: 'IsDraft = :false AND IsRemoved = :false',
     ExpressionAttributeValues: {
       ':min_start': scenario.startTime.format(),
       ':max_start': scenario.startTime.add(1, 'hour').format(),
