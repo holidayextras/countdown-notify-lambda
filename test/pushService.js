@@ -14,6 +14,7 @@ const pushService = require('../src/pushService');
 const Certs = require('../src/certs');
 const scenarios = require('../src/scenarios');
 const PushNotifications = require('node-pushnotifications');
+const moment = require('moment');
 
 describe('pushService', function() {
 
@@ -166,6 +167,40 @@ describe('pushService', function() {
 
     it('sends a push notification', function() {
       expect(PushNotifications.prototype.send).to.have.been.called();
+    });
+
+    it('runs the provided callback', function() {
+      expect(callerCallback).to.have.been.called();
+    });
+
+  });
+
+  describe('findEvents()', function() {
+
+    let callerCallback;
+    let queryStub;
+
+    beforeEach(function() {
+      callerCallback = sandbox.stub();
+      const scenario = {
+        startTime: moment()
+      };
+      sandbox.stub(pushService, '_getDocClient');
+      queryStub = sandbox.stub().yields(null, {
+        Items: []
+      });
+      pushService._getDocClient.returns({
+        query: queryStub
+      });
+      pushService.findEvents(scenario, callerCallback);
+    });
+
+    it('ignores draft and removed evants', function() {
+      expect(queryStub.firstCall.args[0].FilterExpression).to.contain('IsDraft = :false AND IsRemoved = :false');
+    });
+
+    it('queries the database', function() {
+      expect(queryStub).to.have.been.called();
     });
 
     it('runs the provided callback', function() {

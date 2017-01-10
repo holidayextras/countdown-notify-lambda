@@ -7,8 +7,6 @@ const Certs = require('./certs');
 const pushConfig = require('./pushConfig');
 const scenarios = require('./scenarios');
 
-const docClient = new AWS.DynamoDB.DocumentClient();
-
 const pushService = {};
 
 pushService.run = function() {
@@ -104,7 +102,7 @@ pushService.addDeviceToResult = function(result, callback) {
       ':device_id': deviceId
     }
   };
-  docClient.query(deviceParams, function(err, results) {
+  pushService._getDocClient().query(deviceParams, function(err, results) {
     if (err) {
       return callback(err);
     }
@@ -119,18 +117,20 @@ pushService.findEvents = function(scenario, callback) {
   console.log('Finding events for scenario: ', scenario.label);
   let eventParams = {
     TableName: 'MobAppEvent',
-    ProjectionExpression: 'ID, DeviceID, StartDate, TextColour, Background, Destination'
-  };
-  if (scenario.startTime) {
-    eventParams.FilterExpression = 'StartDate >= :min_start and StartDate < :max_start';
-    eventParams.ExpressionAttributeValues = {
+    IndexName: 'NotificationIndex',
+    ProjectionExpression: 'ID, DeviceID, StartDate, Destination',
+    KeyConditionExpression: 'SchemaVersion = :schema AND StartDate BETWEEN :min_start AND :max_start',
+    FilterExpression: 'IsDraft = :false AND IsRemoved = :false',
+    ExpressionAttributeValues: {
       ':min_start': scenario.startTime.format(),
-      ':max_start': scenario.startTime.add(1, 'hour').format()
-    };
-  }
-  console.log('Event search params: ', eventParams);
+      ':max_start': scenario.startTime.add(1, 'hour').format(),
+      ':false': false,
+      ':schema': 2
+    }
+  };
+  console.log('Event search params: ', JSON.stringify(eventParams, null, 2));
 
-  docClient.scan(eventParams, function(err, events) {
+  pushService._getDocClient().query(eventParams, function(err, events) {
     if (err) {
       return callback(err);
     }
@@ -171,6 +171,13 @@ pushService._generatePushData = function(push) {
       eventId: push.Event.ID
     }
   };
+};
+
+pushService._getDocClient = function() {
+  if (!pushService._docClient) {
+    pushService._docClient = new AWS.DynamoDB.DocumentClient();
+  }
+  return pushService._docClient;
 };
 
 module.exports = pushService;

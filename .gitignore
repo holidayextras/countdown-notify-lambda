@@ -6,3 +6,4 @@
 /.env
 /build/
 /.settings/
+/dynamo_local/
