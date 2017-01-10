@@ -7,7 +7,7 @@ This project will allow push notifications to be sent for our countdown app by q
 
 To set the correct environment variables to point to the development database etc:
 
-    GCM_SERVER_API_KEY=x AWS_ACCESS_KEY_ID=x AWS_SECRET_ACCESS_KEY=x npm run build
+    NODE_ENV=x GCM_SERVER_API_KEY=x AWS_ACCESS_KEY_ID=x AWS_SECRET_ACCESS_KEY=x AWS_ACCOUNT=x npm run build
 
 To process all events in the database run:
 
@@ -19,7 +19,7 @@ Depending on the access keys used the development, staging or production databas
 
 To run an existing function on one of the AWS environments use the following command:
 
-    AWS_ACCESS_KEY_ID=x AWS_SECRET_ACCESS_KEY=x AWS_ACCOUNT=x npm run build && node script/run_lambda.js
+    NODE_ENV=x GCM_SERVER_API_KEY=x AWS_ACCESS_KEY_ID=x AWS_SECRET_ACCESS_KEY=x AWS_ACCOUNT=x npm run build && node script/run_lambda.js
 
 ## Deployment
 
