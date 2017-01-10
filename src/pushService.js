@@ -117,19 +117,20 @@ pushService.findEvents = function(scenario, callback) {
   console.log('Finding events for scenario: ', scenario.label);
   let eventParams = {
     TableName: 'MobAppEvent',
-    ProjectionExpression: 'ID, DeviceID, StartDate, TextColour, Background, Destination'
-  };
-  if (scenario.startTime) {
-    eventParams.FilterExpression = 'StartDate >= :min_start and StartDate < :max_start and IsDraft = :false and IsRemoved = :false';
-    eventParams.ExpressionAttributeValues = {
+    IndexName: 'NotificationIndex',
+    ProjectionExpression: 'ID, DeviceID, StartDate, Destination',
+    KeyConditionExpression: 'SchemaVersion = :schema AND StartDate BETWEEN :min_start AND :max_start',
+    FilterExpression: 'IsDraft = :false AND IsRemoved = :false',
+    ExpressionAttributeValues: {
       ':min_start': scenario.startTime.format(),
       ':max_start': scenario.startTime.add(1, 'hour').format(),
-      ':false': false
-    };
-  }
-  console.log('Event search params: ', eventParams);
+      ':false': false,
+      ':schema': 2
+    }
+  };
+  console.log('Event search params: ', JSON.stringify(eventParams, null, 2));
 
-  pushService._getDocClient().scan(eventParams, function(err, events) {
+  pushService._getDocClient().query(eventParams, function(err, events) {
     if (err) {
       return callback(err);
     }
