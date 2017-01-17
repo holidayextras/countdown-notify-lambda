@@ -3,6 +3,8 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.6.12",
+    "bunyan": "^1.8.5",
+    "bunyan-sumologic": "^1.1.0",
     "lodash": "^4.16.4",
     "moment": "^2.16.0",
     "node-pushnotifications": "git+https://github.com/Ryanthegiantlion/node-pushnotifications.git",
