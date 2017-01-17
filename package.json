@@ -7,8 +7,7 @@
     "bunyan-sumologic": "^1.1.0",
     "lodash": "^4.16.4",
     "moment": "^2.16.0",
-    "node-pushnotifications": "git+https://github.com/Ryanthegiantlion/node-pushnotifications.git",
-    "sumologic": "^1.0.0"
+    "node-pushnotifications": "git+https://github.com/Ryanthegiantlion/node-pushnotifications.git"
   },
   "devDependencies": {
     "chai": "^3.5.0",
@@ -23,7 +22,7 @@
   },
   "scripts": {
     "start": "node-lambda run",
-    "test": "mocha -R spec",
+    "test": "LOG_LEVEL=fatal mocha -R spec",
     "lint": "make-up script src test",
     "build": "cp template.env .env && ./script/generate_config.sh >> .env",
     "ci": "npm run lint && npm run build && npm test",

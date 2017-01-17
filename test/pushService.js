@@ -86,14 +86,13 @@ describe('pushService', function() {
     });
 
     context('with an error', function() {
-
       beforeEach(function() {
         pushService.findEvents.yields('FAKE_ERROR');
-        pushService.run();
+        service = pushService.run();
       });
 
       it('rejects the promise', function() {
-        expect(service).to.eventually.be.rejectedWith('FAKE_ERROR');
+        return expect(service).to.eventually.be.rejectedWith('FAKE_ERROR');
       });
 
     });
