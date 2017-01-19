@@ -19,11 +19,17 @@ describe('Logger', function() {
   describe('setting up the streams', function() {
     let streams;
 
-    context('when on production', function() {
+    context('when provided with sumo creds', function() {
 
       beforeEach(function() {
         process.env.SUMOLOGIC_CODE = 'sumo_code';
-        streams = logger._setupStreams('production');
+        process.env.SUMOLOGIC_URL = 'sumo_url';
+        streams = logger._setupStreams();
+      });
+
+      afterEach(function() {
+        delete process.env.SUMOLOGIC_CODE;
+        delete process.env.SUMOLOGIC_URL;
       });
 
       it('sets up a console logger', function() {
@@ -43,7 +49,7 @@ describe('Logger', function() {
     context('when not on production', function() {
 
       beforeEach(function() {
-        streams = logger._setupStreams('development');
+        streams = logger._setupStreams();
       });
 
       it('sets up a console logger', function() {
