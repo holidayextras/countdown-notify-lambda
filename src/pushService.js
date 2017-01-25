@@ -6,16 +6,13 @@ const AWS = require('./awsConfigured');
 const Certs = require('./certs');
 const pushConfig = require('./pushConfig');
 const scenarios = require('./scenarios');
-
+const logger = require('./logger');
 const pushService = {};
 
 pushService.run = function() {
   pushService._startTime = moment();
   pushService._pushCount = 0;
-
-  console.log('----------------------------------------------------------------------------------');
-  console.log('Countdown Push Notification Service - started at: ' + pushService._startTime.format());
-  console.log('----------------------------------------------------------------------------------');
+  logger.info('Started Notification Service');
 
   Certs.downloadCerts();
 
@@ -32,7 +29,9 @@ pushService.run = function() {
     return Promise.all(pushService.sendPushNotificationsForAllEvents(results));
   })
   .then(() => {
-    pushService.displaySummary();
+    const duration = moment().diff(pushService._startTime, 'seconds', true);
+    logger.info({ count: pushService._pushCount, duration: duration }, 'Sent Push Notifications');
+    logger.info('Finish Notification Service');
   });
 };
 
@@ -41,7 +40,7 @@ pushService.concatResults = function(results) {
 };
 
 pushService.sendPushNotificationsForAllEvents = function(pushableEvents) {
-  console.log('Found pushable events: ', pushableEvents.length);
+  logger.info({ count: pushableEvents.length }, 'Found pushable events');
   return pushableEvents.map((item) => {
     return new Promise((fulfill, reject) => {
       pushService.sendPushNotification(item, function(err) {
@@ -55,7 +54,7 @@ pushService.sendPushNotificationsForAllEvents = function(pushableEvents) {
 };
 
 pushService.addDevicesToAllEvents = function(events) {
-  console.log('Found events: ', events.length);
+  logger.info({ count: events.length }, 'Found events');
   return events.map((item) => {
     return new Promise((fulfill, reject) => {
       pushService.addDeviceToResult(item, function(err, eventAndDevice) {
@@ -85,13 +84,6 @@ pushService.canPush = function(item) {
   return item.Device && item.Device.PushID;
 };
 
-pushService.displaySummary = function() {
-  let duration = moment().diff(pushService._startTime);
-  console.log('----------------------------------------------------------------------------------');
-  console.log('Sent ' + pushService._pushCount + ' push notifications in ' + duration / 1000.0 + ' seconds.');
-  console.log('----------------------------------------------------------------------------------');
-};
-
 pushService.addDeviceToResult = function(result, callback) {
   const deviceId = result.Event.DeviceID;
   const deviceParams = {
@@ -114,7 +106,7 @@ pushService.addDeviceToResult = function(result, callback) {
 };
 
 pushService.findEvents = function(scenario, callback) {
-  console.log('Finding events for scenario: ', scenario.label);
+  logger.info({ scenario: scenario.label }, 'Finding events');
   let eventParams = {
     TableName: 'MobAppEvent',
     IndexName: 'NotificationIndex',
@@ -128,7 +120,7 @@ pushService.findEvents = function(scenario, callback) {
       ':schema': 2
     }
   };
-  console.log('Event search params: ', JSON.stringify(eventParams, null, 2));
+  logger.debug(eventParams, 'Event search params');
 
   pushService._getDocClient().query(eventParams, function(err, events) {
     if (err) {
@@ -147,15 +139,15 @@ pushService.findEvents = function(scenario, callback) {
 };
 
 pushService.sendPushNotification = function(push, callback) {
-  console.log('sendPushNotification()', push);
+  logger.info(push, 'Sending Push Notification');
   const pushId = push.Device.PushID;
   const data = pushService._generatePushData(push);
-  console.log('push data: ', data);
+  logger.debug(data, 'Sending Push Data');
   const dispatcher = new PushNotifications(pushConfig);
   return dispatcher.send([pushId], data, function(status) {
-    console.log('dispatcher status: ', status);
+    logger.debug({ status: status }, 'dispatcher status');
     pushService._pushCount++;
-    console.log('Sent push notification to device: ' + push.Device.DeviceID);
+    logger.info({ deviceId: push.Device.DeviceID }, 'Sent push notification to device');
     return callback();
   });
 };
