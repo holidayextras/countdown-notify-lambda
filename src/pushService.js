@@ -142,10 +142,10 @@ pushService.sendPushNotification = function(push, callback) {
   logger.info(push, 'Sending Push Notification');
   const pushId = push.Device.PushID;
   const data = pushService._generatePushData(push);
-  logger.debug(data, 'Sending Push Data');
+  logger.info(data, 'Sending Push Data');
   const dispatcher = new PushNotifications(pushConfig);
   return dispatcher.send([pushId], data, function(status) {
-    logger.debug({ status: status }, 'dispatcher status');
+    logger.info({ status: status }, 'dispatcher status');
     pushService._pushCount++;
     logger.info({ deviceId: push.Device.DeviceID }, 'Sent push notification to device');
     return callback();
